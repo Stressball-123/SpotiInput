@@ -1,0 +1,5 @@
+spotipy==2.23.0
+Flask==3.0.2
+streamlit==1.32.2
+pandas==2.2.2
+pynput==1.7.7
