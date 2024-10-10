@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import time
 import os
 import pandas as pd 
+import random
 
 keyboard_count = 0
 mouse_count = 0
@@ -17,7 +18,8 @@ real_total_count = 0
 app = Flask(__name__) # Creates an instance of the flask application using the name of the current path.
 app.config['SECRET_KEY'] = os.urandom(64) # Secret key is needed to safely handle sessions, cookies
 
-load_dotenv()
+load_dotenv(dotenv_path= './EV.env', verbose=True)
+
 scope = 'playlist-read-private user-top-read user-modify-playback-state user-read-playback-state'
 
 cache_handler = FlaskSessionCacheHandler(session) # Handles caching of OAuth tokens in a Flask session. This ensures that the authentication tokens are stored in the user's session data and are accessible across multiple requests.
@@ -166,31 +168,43 @@ def play_song():
         print(f"idle song:{real_total_count}")
         song = get_songs("idle")
         playback_info = sp.current_playback()
+        random_song_uri = random.choice(song["track_uris"])
+        if len(song) == 1:
+            random_song_uri = song["track_uris"]
+            print("only 1 song")
+        elif len(song) == 0:
+            real_total_count = 250
+            print("No song, skipped to next queue of songs")
         play = sp.start_playback(device_id=get_devices(), uris=song["track_uris"])
-        time.sleep(1) # Gives time for spotify to register current playback song instead of previous playback song on print output
-        input_checker()
         
     elif real_total_count < 301:
         print(f"casual song:{real_total_count}")
         song = get_songs("casual")
         playback_info = sp.current_playback()
-        play = sp.start_playback(device_id=get_devices(), uris=song["track_uris"])
-        time.sleep(1)
-        input_checker()
+        random_song_uri = random.choice(song["track_uris"])
+        if len(random_song_uri) == 1:
+            random_song_uri = song["track_uris"]
+            print("only 1 song")
+        elif len(random_song_uri) == 0:
+            real_total_count = 350
+            print("No song, skipped to next queue of songs")
+        play = sp.start_playback(device_id=get_devices(), uris=[random_song_uri])
         
     elif real_total_count >= 301:
         print(f"hype song:{real_total_count}")
         song = get_songs("hype")
         playback_info = sp.current_playback()
-        play = sp.start_playback(device_id=get_devices(), uris=song["track_uris"])
-        time.sleep(1)
-        input_checker()
-
-    if playback_info is not None: # Gets rid of playback_info == None at the beginning as Spotify won't register a song on boot.
-        playback_info = sp.current_playback()
-        print(playback_info["item"]["name"])
-    else:
-        print("No songs can be found")     
+        random_song_uri = random.choice(song["track_uris"])
+        if len(random_song_uri) == 1:
+            random_song_uri = song["track_uris"]
+            print("only 1 song")
+        elif len(random_song_uri) == 0:
+            real_total_count = 250
+            print("No song, skipped to next queue of songs")
+        play = sp.start_playback(device_id=get_devices(), uris=[random_song_uri])
+        
+    time.sleep(1) # Gives time for spotify to register current playback song instead of previous playback song on print output
+    input_checker()  
 
     while True:
         time.sleep(4)
