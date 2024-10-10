@@ -3,9 +3,9 @@ from spotipy import Spotify
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy.cache_handler import FlaskSessionCacheHandler
 from pynput import mouse, keyboard
+from dotenv import load_dotenv
 import time
 import os
-import streamlit as st
 import pandas as pd 
 
 keyboard_count = 0
@@ -17,16 +17,14 @@ real_total_count = 0
 app = Flask(__name__) # Creates an instance of the flask application using the name of the current path.
 app.config['SECRET_KEY'] = os.urandom(64) # Secret key is needed to safely handle sessions, cookies
 
-client_id = '1433d645e80b411e88d32553ecace4e8' # This and below are the credentials you need to interact with the Spotify Web API
-client_secret = '2295ef702c28464e99a9d5084846b146'
-redirect_uri = 'http://localhost:5000/callback'
+load_dotenv()
 scope = 'playlist-read-private user-top-read user-modify-playback-state user-read-playback-state'
 
 cache_handler = FlaskSessionCacheHandler(session) # Handles caching of OAuth tokens in a Flask session. This ensures that the authentication tokens are stored in the user's session data and are accessible across multiple requests.
 sp_oauth = SpotifyOAuth(
-    client_id = client_id,
-    client_secret = client_secret,
-    redirect_uri = redirect_uri,
+    client_id = os.getenv('client_id'),
+    client_secret = os.getenv('client_secret'),
+    redirect_uri = os.getenv('redirect_uri'),
     scope = scope,
     cache_handler = cache_handler,
     show_dialog = True
@@ -192,7 +190,7 @@ def play_song():
         playback_info = sp.current_playback()
         print(playback_info["item"]["name"])
     else:
-        print("SpotiInput Starting")     
+        print("No songs can be found")     
 
     while True:
         time.sleep(4)
