@@ -18,7 +18,7 @@ real_total_count = 0
 app = Flask(__name__) # Creates an instance of the flask application using the name of the current path.
 app.config['SECRET_KEY'] = os.urandom(64) # Secret key is needed to safely handle sessions, cookies
 
-load_dotenv(dotenv_path= './EV.env', verbose=True)
+load_dotenv(dotenv_path= '.env', verbose=True)
 
 scope = 'playlist-read-private user-top-read user-modify-playback-state user-read-playback-state'
 
