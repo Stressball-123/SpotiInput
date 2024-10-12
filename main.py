@@ -66,12 +66,12 @@ def input_checker():
     real_total_count = 0
 
     def on_press(key):
-        global keyboard_count  # Access the outer variable
+        global keyboard_count 
         keyboard_count += 1
 
     
     def on_click(x, y, button, pressed):
-        global mouse_count  # Access the outer variable
+        global mouse_count  
         if pressed:
             mouse_count += 1
 
@@ -80,8 +80,6 @@ def input_checker():
 
     keyboard_listener.start()
     mouse_listener.start()
-    #print("Start of input tracker")
-    #print(keyboard_listener)
 
     return real_total_count
 
@@ -92,12 +90,12 @@ def input_checker_end():
     global real_total_count
 
     def on_press(key):
-        global keyboard_count  # Access the outer variable
+        global keyboard_count 
         keyboard_count += 1
 
     
     def on_click(x, y, button, pressed):
-        global mouse_count  # Access the outer variable
+        global mouse_count 
         if pressed:
             mouse_count += 1
 
@@ -105,19 +103,15 @@ def input_checker_end():
     mouse_listener = mouse.Listener(on_click=on_click)
 
     keyboard_listener.stop()
-    mouse_listener.stop()#Split these 2 into 2 different functions?
+    mouse_listener.stop()
 
     total_count = mouse_count + keyboard_count
     real_total_count = total_count
 
-    #print("End of input tracker")
-    #print(total_count)
-    #print(real_total_count)
-               
     return real_total_count
 
 @app.route('/get_songs')
-def get_songs(x):
+def get_songs(x): # Analyzes users top tracks for the last 12 months and creates 3 catogeries of songs based on danceability, energy and valence 
     if not sp_oauth.validate_token(cache_handler.get_cached_token()): # validate_token method checks if token is valid or not. get_cached_token retrieves the current spotify token from the cache 
         auth_url = sp_oauth.get_authorize_url()
         return redirect(auth_url)# Redirects users to the login page
@@ -143,10 +137,6 @@ def get_songs(x):
     casual_songs = df_sortedsongs[(df_sortedsongs['total'] >= 1) & (df_sortedsongs['total'] < 2)]
     hype_songs = df_sortedsongs[(df_sortedsongs['total'] >= 2) & (df_sortedsongs['total'] <= 3)]
 
-    #idle_songs_html = idle_songs.to_html(classes='table table-striped')
-    #casual_songs_html = casual_songs.to_html(classes='table table-striped')
-    #hype_songs_html = hype_songs.to_html(classes='table table-striped')
-
     if x == "idle":
         print("Idle songs")
         return {"track_uris": idle_songs['track_uris'].tolist()}
@@ -158,7 +148,7 @@ def get_songs(x):
         return {"track_uris": hype_songs['track_uris'].tolist()}
 
 @app.route('/play_song')
-def play_song():
+def play_song(): # plays songs based on input of users
     global real_total_count
     if not sp_oauth.validate_token(cache_handler.get_cached_token()): # validate_token method checks if token is valid or not. get_cached_token retrieves the current spotify token from the cache 
         auth_url = sp_oauth.get_authorize_url()
@@ -209,12 +199,10 @@ def play_song():
     while True:
         time.sleep(4)
         playback_info = sp.current_playback()  # Update playback_info here
-        print(playback_info["progress_ms"])
-        print(playback_info["item"]["duration_ms"])
+        print(round(playback_info["progress_ms"]/60000, 2))
         
         if playback_info["progress_ms"] >= playback_info["item"]["duration_ms"] - 6100:  # Check if the song is still playing
             input_checker_end()
-            #print("done1")
             print(f"Real total count after song ended: {real_total_count}")
             play_song()  # Call play_song with parentheses to execute it
             break
